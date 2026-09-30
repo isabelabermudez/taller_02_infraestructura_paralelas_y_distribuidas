@@ -19,20 +19,14 @@ def convertir_a_gris(ruta_imagen):
         print(f"Error al procesar {ruta_imagen}: {e}")
 
 
-def procesar_imagenes_secuencial(lista_imagenes):
-    """Procesa una lista de imágenes secuencialmente."""
-    for ruta_imagen in lista_imagenes:
-        convertir_a_gris(ruta_imagen)
+def procesar_lote(lista_imagenes):
+    for image in lista_imagenes:
+        convertir_a_gris(image)
 
-
-def procesar_imagenes_paralelo(lista_imagenes, num_nucleos=4):
-    """Procesa las imágenes usando un Pool de procesos."""
-    with multiprocessing.Pool(processes=num_nucleos) as pool:
-        pool.map(convertir_a_gris, lista_imagenes)
 
 
 if __name__ == '__main__':
-    directorio_imagenes = r"C:\Users\Hulk1\PycharmProjects\taller_2_codigo_1\images"
+    directorio_imagenes = r"C:\Users\Hulk1\PycharmProjects\taller_02_infraestructura_paralelas_y_distribuidas\ejercicio_01\images"
 
     lista_imagenes = [
         os.path.join(directorio_imagenes, f)
@@ -40,13 +34,29 @@ if __name__ == '__main__':
         if os.path.isfile(os.path.join(directorio_imagenes, f))
     ]
 
-    # Medir el tiempo alrededor de la llamada
-    inicio = time.time()
+    num_procesos = 4
+    tamano_porcion = len(lista_imagenes) // num_procesos
 
-    #procesar_imagenes_paralelo(lista_imagenes, num_nucleos=4)
-    procesar_imagenes_secuencial(lista_imagenes)
+    procesos = []
 
-    fin = time.time()
+    tiempo_inicial = time.time()
+
+    for i in range(num_procesos):
+        inicio = i * tamano_porcion
+
+        fin = (i + 1) * tamano_porcion if i < num_procesos - 1 else len(
+            lista_imagenes)
+
+        porcion = lista_imagenes[inicio:fin]
+
+        p = multiprocessing.Process(target=procesar_lote, args=(porcion,))
+        procesos.append(p)
+        p.start()
+
+    for p in procesos:
+        p.join()
+
+    tiempo_fin = time.time()
 
     print(
-        f"Tiempo total de procesamiento: {fin - inicio:.2f} segundos")
+        f"Tiempo total de procesamiento: {tiempo_fin - tiempo_inicial:.2f} segundos")
