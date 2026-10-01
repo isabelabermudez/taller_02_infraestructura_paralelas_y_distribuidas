@@ -24,9 +24,9 @@ def procesar_lote(lista_imagenes):
         convertir_a_gris(image)
 
 
-
 if __name__ == '__main__':
-    directorio_imagenes = r"C:\Users\Hulk1\PycharmProjects\taller_02_infraestructura_paralelas_y_distribuidas\ejercicio_01\images"
+    directorio_actual = os.path.dirname(os.path.abspath(__file__))
+    directorio_imagenes = os.path.join(directorio_actual, "images")
 
     lista_imagenes = [
         os.path.join(directorio_imagenes, f)
